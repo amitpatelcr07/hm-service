@@ -1,0 +1,10 @@
+{
+  "name": "hm-service",
+  "private": true,
+  "prisma": {
+    "schema": "backend/prisma/schema.prisma"
+  },
+  "scripts": {
+    "prisma:validate": "prisma validate --schema backend/prisma/schema.prisma"
+  }
+}
