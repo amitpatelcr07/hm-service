@@ -326,3 +326,392 @@ Should Payment reference Job or JobApplication?
 How do we model chat messages efficiently?
 Which fields should be indexed?
 Which fields should be unique?
+
+job --->
+
+give me job model so that i can create a sql table
+
+Perfect. Since we're designing this as a production-ready HomeConnect application, let's create a proper Job model.
+
+Step 1: What is the Job table?
+
+This table stores every service request posted by a customer.
+
+Example:
+
+Customer Title Budget Status
+Amit Fix AC ₹500 OPEN
+Rahul House Painting ₹8000 IN_PROGRESS
+Priya Plumbing Repair ₹1200 COMPLETED
+Step 2: Add a JobCategory Enum
+
+In backend/prisma/schema.prisma, above your models, add:
+
+enum JobCategory {
+PLUMBING
+ELECTRICAL
+PAINTING
+CARPENTRY
+CLEANING
+APPLIANCE_REPAIR
+OTHER
+}
+
+This avoids storing inconsistent values like "Plumbing", "plumber", "PLUMBING".
+
+Step 3: Update the User Model
+
+Add this relation:
+
+jobs Job[]
+
+Your User model will now have:
+
+model User {
+id String @id @default(cuid())
+fullName String
+email String @unique
+password String
+phone String?
+role Role
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+
+workerProfile WorkerProfile?
+jobs Job[]
+}
+Step 4: Create the Job Model
+
+Below WorkerProfile, add:
+
+model Job {
+id String @id @default(cuid())
+
+customerId String
+customer User @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+title String
+description String
+
+category JobCategory
+
+location String
+
+budget Decimal @db.Decimal(10,2)
+
+status JobStatus @default(OPEN)
+
+requiredDate DateTime?
+
+createdAt DateTime @default(now())
+
+updatedAt DateTime @updatedAt
+}
+Step 5: Understand Each Field
+Primary Key
+id String @id @default(cuid())
+
+Unique Job ID.
+
+Customer Relation
+customerId String
+
+customer User @relation(...)
+
+Example:
+
+## User
+
+id = abc123
+
+↓
+
+## Job
+
+customerId = abc123
+
+One customer can create many jobs.
+
+Title
+title String
+
+Example:
+
+Fix AC
+Description
+description String
+
+Example:
+
+My LG split AC is not cooling properly.
+Category
+category JobCategory
+
+Allowed values:
+
+PLUMBING
+
+ELECTRICAL
+
+PAINTING
+
+CARPENTRY
+
+CLEANING
+
+APPLIANCE_REPAIR
+
+OTHER
+Location
+location String
+
+Example:
+
+Noida Sector 62
+Budget
+budget Decimal @db.Decimal(10,2)
+
+Example:
+
+500.00
+
+1500.00
+
+8000.00
+
+Using Decimal avoids precision issues with money.
+
+Status
+status JobStatus @default(OPEN)
+
+Possible values:
+
+OPEN
+
+IN_PROGRESS
+
+COMPLETED
+
+CANCELLED
+
+When a customer creates a job, it starts as OPEN.
+
+Required Date
+requiredDate DateTime?
+
+Optional.
+
+Example:
+
+05 Aug 2026
+createdAt
+
+Automatically stores creation time.
+
+updatedAt
+
+Automatically updates whenever the record changes.
+
+Step 6: Relationship Diagram
+User
+
+---
+
+id
+fullName
+role
+│
+│ 1
+│
+▼
+Job
+
+---
+
+id
+customerId
+title
+description
+category
+budget
+status
+Step 7: Validate
+npx prisma validate
+Step 8: Create Migration
+npx prisma migrate dev --name add-job-model
+Step 9: Verify
+npx prisma studio
+
+You should now see:
+
+User
+
+WorkerProfile
+
+Job
+💡 A production improvement
+
+This model is a solid Version 1. As the application grows, we can enhance it with fields like:
+
+estimatedDuration Int? // Estimated work duration in hours
+address String // Full service address
+latitude Float? // For map support
+longitude Float?
+images String[] // Photos uploaded by the customer
+
+For now, I recommend keeping the model simple. It's enough to support creating jobs, browsing jobs, applying for jobs, payments, and reviews, while leaving room for future enhancements without overcomplicating the initial version.
+
+Job Application -->
+
+Excellent! You're following a good development process.
+
+Current Progress
+✅ Phase 1 - Project Setup
+
+✅ Phase 2 - Database Design
+
+🔄 Phase 3 - Prisma Database Implementation
+
+    ✅ User
+    ✅ WorkerProfile
+    ✅ Job
+    ⏳ JobApplication
+    ⏳ Review
+    ⏳ Message
+    ⏳ Payment
+    ⏳ Notification
+
+Next Model: JobApplication
+
+This is the most important table after Job.
+
+Why do we need it?
+
+Suppose the customer creates this job:
+
+Title: Fix AC
+Budget: ₹1000
+
+Now multiple workers can apply.
+
+Example:
+
+Worker Proposed Price Status
+Rahul ₹900 PENDING
+Aman ₹850 PENDING
+Priya ₹950 ACCEPTED
+
+This information doesn't belong in the Job table because one job can have many applications.
+
+That's why we create a separate JobApplication table.
+
+Database Relationship
+User (Customer)
+│
+│
+creates
+│
+▼
+Job
+│
+One Job has many Applications
+│
+▼
+JobApplication
+▲
+│
+applied by
+│
+WorkerProfile
+│
+▲
+User (Worker)
+Fields for JobApplication
+Field Type Description
+id String Primary key (cuid())
+jobId String Foreign key → Job
+workerProfileId String Foreign key → WorkerProfile
+proposal String Worker's message/proposal
+expectedPrice Decimal Worker's quoted price
+estimatedDays Int Estimated completion time
+status ApplicationStatus PENDING, ACCEPTED, REJECTED
+createdAt DateTime Auto timestamp
+updatedAt DateTime Auto timestamp
+Relationships
+Job
+Job
+
+1 -------- N JobApplication
+
+One job can receive many applications.
+
+WorkerProfile
+WorkerProfile
+
+1 -------- N JobApplication
+
+One worker can apply to many jobs.
+
+Workflow
+Customer creates Job
+│
+▼
+Worker browses Jobs
+│
+▼
+Worker submits Application
+│
+▼
+Application stored in JobApplication
+│
+▼
+Customer accepts one application
+│
+▼
+Application status = ACCEPTED
+│
+▼
+Job status = IN_PROGRESS
+After JobApplication
+
+We'll continue with:
+
+1. ✅ User
+2. ✅ WorkerProfile
+3. ✅ Job
+4. ⏳ JobApplication
+5. ⏳ Review
+6. ⏳ Message
+7. ⏳ Payment
+8. ⏳ Notification
+   After All Models
+
+Once every table is created and migrated, we'll start Phase 4.
+
+Phase 4 - Authentication
+
+User Registration
+↓
+Password Hashing (bcrypt)
+↓
+Login
+↓
+JWT Token
+↓
+Authentication Middleware
+↓
+Role-Based Authorization
+
+Only after authentication will we build the API endpoints.
+
+My recommendation
+
+Before we write the JobApplication model, let's spend 10–15 minutes designing it properly.
+
+We'll answer questions like:
+
+Can a worker apply to the same job more than once? (Probably no → we'll enforce this with a unique constraint.)
+Can a customer accept more than one application for the same job? (Probably no → we'll enforce this in business logic.)
+What happens to the remaining applications after one is accepted? (Usually they become REJECTED.)
+
+Thinking through these rules first leads to a cleaner database and simpler backend code. After that, we'll implement the Prisma model together and migrate it.

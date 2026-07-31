@@ -31,34 +31,182 @@ enum PaymentStatus {
   FAILED
 }
 
-model User {
-  id         String   @id @default(cuid())
-  fullName   String
-  email      String   @unique
-  password   String
-  phone      String?
-  role       Role
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  workerProfile WorkerProfile?
+enum JobCategory {
+  PLUMBING
+  ELECTRICAL
+  PAINTING
+  CARPENTRY
+  CLEANING
+  APPLIANCE_REPAIR
+  OTHER
 }
 
+model User {
+  id       String  @id @default(cuid())
+  fullName String
+  email    String  @unique
+  password String
+  phone    String?
+  role     Role
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workerProfile WorkerProfile?
+
+  jobs Job[] @relation("CustomerJobs")
+
+  reviewsGiven Review[] @relation("CustomerReviews")
+
+  messagesSent     Message[] @relation("MessageSender")
+  messagesReceived Message[] @relation("MessageReceiver")
+
+  notifications Notification[]
+}
 
 model WorkerProfile {
-  id            String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  userId        String   @unique
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  bio           String?
-  skills        String[]
-  experience    Int
-  hourlyRate    Decimal  @db.Decimal(10,2)
+  bio        String?
+  skills     String[]
+  experience Int
+  hourlyRate Decimal  @db.Decimal(10, 2)
 
-  isAvailable   Boolean  @default(true)
+  isAvailable Boolean @default(true)
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  applications JobApplication[]
+  reviews      Review[]
+}
+
+model Job {
+  id String @id @default(cuid())
+
+  customerId String
+  customer   User   @relation("CustomerJobs", fields: [customerId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String
+
+  category JobCategory
+
+  location String
+
+  budget Decimal @db.Decimal(10, 2)
+
+  status JobStatus @default(OPEN)
+
+  requiredDate DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  applications JobApplication[]
+  reviews      Review[]
+  payment      Payment?
+  messages     Message[]
+}
+
+model JobApplication {
+  id String @id @default(cuid())
+
+  jobId String
+  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  workerProfileId String
+  workerProfile   WorkerProfile @relation(fields: [workerProfileId], references: [id], onDelete: Cascade)
+
+  proposal String?
+
+  expectedPrice Decimal @db.Decimal(10, 2)
+
+  estimatedDays Int?
+
+  status ApplicationStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([jobId, workerProfileId])
+}
+
+model Review {
+  id String @id @default(cuid())
+
+  jobId String
+  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   User   @relation("CustomerReviews", fields: [customerId], references: [id], onDelete: Cascade)
+
+  workerProfileId String
+  workerProfile   WorkerProfile @relation(fields: [workerProfileId], references: [id], onDelete: Cascade)
+
+  rating  Int
+  comment String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([jobId, customerId])
+}
+
+model Payment {
+  id String @id @default(cuid())
+
+  jobId String @unique
+  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  amount Decimal @db.Decimal(10, 2)
+
+  status PaymentStatus @default(PENDING)
+
+  transactionId String? @unique
+
+  paymentMethod String?
+
+  paidAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Message {
+  id String @id @default(cuid())
+
+  jobId String
+  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  senderId String
+  sender   User   @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  receiverId String
+  receiver   User   @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  message String
+
+  isRead Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title String
+
+  message String
+
+  isRead Boolean @default(false)
+
+  createdAt DateTime @default(now())
 }
