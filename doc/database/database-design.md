@@ -715,3 +715,292 @@ Can a customer accept more than one application for the same job? (Probably no �
 What happens to the remaining applications after one is accepted? (Usually they become REJECTED.)
 
 Thinking through these rules first leads to a cleaner database and simpler backend code. After that, we'll implement the Prisma model together and migrate it.
+
+Absolutely. Since we're building a production-level HomeConnect (Urban Company + Upwork style) application, here's a complete backend API roadmap. This is the set of APIs I'd expect for an MVP with good architecture.
+
+Phase 1 - Authentication APIs
+
+Base URL
+
+/api/auth
+Method Endpoint Description Auth
+POST /register Register Customer/Worker ❌
+POST /login Login & Generate JWT ❌
+GET /me Get Logged-in User ✅
+PUT /profile Update Profile ✅
+PUT /change-password Change Password ✅
+Phase 2 - Worker Profile APIs
+
+Base URL
+
+/api/worker
+Method Endpoint Description Auth
+POST /profile Create Worker Profile ✅ Worker
+GET /profile My Worker Profile ✅ Worker
+PUT /profile Update Worker Profile ✅ Worker
+GET /:id View Worker Profile ❌
+GET /top-workers Top Rated Workers ❌
+Phase 3 - Job APIs
+
+Base URL
+
+/api/jobs
+Method Endpoint Description Auth
+POST / Create Job ✅ Customer
+GET / Browse Jobs ❌ / ✅
+GET /:id Job Details ❌ / ✅
+GET /my-jobs Customer Jobs ✅ Customer
+PUT /:id Update Job ✅ Customer
+DELETE /:id Delete Job ✅ Customer
+PATCH /:id/status Update Job Status ✅ Customer
+Phase 4 - Job Application APIs
+
+Base URL
+
+/api/applications
+Method Endpoint Description Auth
+POST /jobs/:jobId Apply for Job ✅ Worker
+GET /my-applications My Applications ✅ Worker
+GET /jobs/:jobId View Applications for Job ✅ Customer
+PATCH /:id/accept Accept Application ✅ Customer
+PATCH /:id/reject Reject Application ✅ Customer
+Phase 5 - Review APIs
+
+Base URL
+
+/api/reviews
+Method Endpoint Description Auth
+POST / Add Review ✅ Customer
+GET /worker/:workerId Worker Reviews ❌
+GET /job/:jobId Job Reviews ❌
+Phase 6 - Payment APIs
+
+Base URL
+
+/api/payments
+Method Endpoint Description Auth
+POST /create-order Create Payment Order ✅ Customer
+POST /verify Verify Payment ✅ Customer
+GET /history Payment History ✅
+GET /:id Payment Details ✅
+Phase 7 - Message APIs
+
+Base URL
+
+/api/messages
+Method Endpoint Description Auth
+POST / Send Message ✅
+GET /job/:jobId Get Job Conversation ✅
+PATCH /:id/read Mark as Read ✅
+Phase 8 - Notification APIs
+
+Base URL
+
+/api/notifications
+Method Endpoint Description Auth
+GET / My Notifications ✅
+PATCH /:id/read Mark Read ✅
+PATCH /read-all Mark All Read ✅
+Phase 9 - Dashboard APIs
+Customer Dashboard
+/api/dashboard/customer
+Method Endpoint Description
+GET /stats Customer Dashboard Stats
+
+Example response:
+
+{
+"totalJobs": 12,
+"activeJobs": 2,
+"completedJobs": 10,
+"totalSpent": 25000
+}
+Worker Dashboard
+/api/dashboard/worker
+Method Endpoint Description
+GET /stats Worker Dashboard Stats
+
+Example:
+
+{
+"completedJobs": 50,
+"rating": 4.8,
+"earnings": 180000,
+"pendingApplications": 5
+}
+Phase 10 - Admin APIs (Optional)
+/api/admin
+Method Endpoint
+GET /users
+GET /jobs
+GET /payments
+DELETE /users/:id
+PATCH /users/:id/block
+Authentication Flow
+Register
+
+↓
+
+Login
+
+↓
+
+JWT
+
+↓
+
+Auth Middleware
+
+↓
+
+Role Middleware
+
+↓
+
+Protected APIs
+Customer Flow
+Register
+
+↓
+
+Login
+
+↓
+
+Create Job
+
+↓
+
+View Applications
+
+↓
+
+Accept Worker
+
+↓
+
+Payment
+
+↓
+
+Review
+Worker Flow
+Register
+
+↓
+
+Create Worker Profile
+
+↓
+
+Login
+
+↓
+
+Browse Jobs
+
+↓
+
+Apply
+
+↓
+
+Chat
+
+↓
+
+Complete Job
+
+↓
+
+Receive Review
+Final Project Structure
+Authentication (5 APIs)
+
+Worker Profile (5 APIs)
+
+Jobs (7 APIs)
+
+Applications (5 APIs)
+
+Reviews (3 APIs)
+
+Payments (4 APIs)
+
+Messages (3 APIs)
+
+Notifications (3 APIs)
+
+Dashboard (2 APIs)
+
+Admin (Optional 5 APIs)
+Total
+Core APIs : 37
+
+Optional Admin : 5
+
+---
+
+Total : 42 APIs
+Recommended Development Order
+
+This is the order I'd follow to build the backend:
+
+1. ✅ Register
+2. ✅ Login
+3. JWT Middleware
+4. Role Middleware
+5. GET /auth/me
+
+---
+
+6. Worker Profile APIs
+
+---
+
+7. Create Job
+8. Get Jobs
+9. Get Job Details
+10. Update Job
+11. Delete Job
+
+---
+
+12. Apply for Job
+13. View Applications
+14. Accept Application
+15. Reject Application
+
+---
+
+16. Reviews
+
+---
+
+17. Payments
+
+---
+
+18. Notifications
+
+---
+
+19. Messages (Socket.IO can be added later)
+
+---
+
+20. Dashboard APIs
+
+---
+
+21. Frontend Integration
+
+---
+
+22. Testing
+
+---
+
+23. Deployment
+
+This roadmap gives you a complete, interview-worthy backend while keeping the implementation incremental and manageable.
