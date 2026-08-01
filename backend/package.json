@@ -7,11 +7,11 @@
     "dev": "nodemon src/server.js"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.3",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^4.22.2",
-    "prisma": "^6.19.3"
+    "jsonwebtoken": "^9.0.3"
   },
   "description": "Backend service for the HomeConnect marketplace.",
   "main": "index.js",
@@ -19,6 +19,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "@prisma/client": "^6.15.0",
+    "nodemon": "^3.1.14",
+    "prisma": "^6.15.0"
   }
 }
