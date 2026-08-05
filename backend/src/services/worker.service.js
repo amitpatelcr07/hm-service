@@ -58,3 +58,85 @@ export const getWorkerProfileData = async (userId) => {
 
   return profile;
 };
+
+export const updateWorkerProfileData = async (userId, profileData) => {
+  const { bio, skills, experience, hourlyRate } = profileData;
+
+  const updatedProfile = await prisma.workerProfile.update({
+    where: {
+      userId,
+    },
+    data: {
+      bio,
+
+      skills,
+      experience,
+      hourlyRate,
+    },
+    select: {
+      id: true,
+      bio: true,
+      skills: true,
+      experience: true,
+      hourlyRate: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  return updatedProfile;
+};
+
+export const getWorkerProfileById = async (workerId) => {
+  const profile = await prisma.workerProfile.findUnique({
+    where: {
+      id: workerId,
+    },
+    include: {
+      user: {
+        select: {
+          fullName: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  if (!profile) {
+    const error = new Error("Worker profile not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return profile;
+};
+
+export const updateWorkerAvailability = async (userId, isAvailable) => {
+  const profile = await prisma.workerProfile.findUnique({
+    where: {
+      userId,
+    },
+  });
+
+  if (!profile) {
+    const error = new Error("Worker profile not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const updatedProfile = await prisma.workerProfile.update({
+    where: {
+      userId,
+    },
+    data: {
+      isAvailable,
+    },
+    select: {
+      id: true,
+      isAvailable: true,
+      updatedAt: true,
+    },
+  });
+
+  return updatedProfile;
+};
