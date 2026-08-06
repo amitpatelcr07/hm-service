@@ -8,6 +8,7 @@ import {
 } from "../controllers/worker.controller.js";
 import { authenticateUser } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
+// import { applyForJob } from "../controllers/application.controller.js";
 const router = express.Router();
 
 // Create Worker Profile
@@ -32,5 +33,7 @@ router.patch(
   authorize("WORKER"),
   updateAvailability,
 );
+
+// router.post("/:id/apply", authenticateUser, authorize("WORKER"), applyForJob);
 
 export default router;

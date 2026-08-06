@@ -10,6 +10,8 @@ import {
 } from "../controllers/job.controller.js";
 import { authenticateUser } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
+import { applyForJob } from "../controllers/application.controller.js";
+import { getJobApplications } from "../controllers/application.controller.js";
 const router = express.Router();
 
 router.post("/", authenticateUser, authorize("CUSTOMER"), createJob);
@@ -23,5 +25,12 @@ router.patch(
   authenticateUser,
   authorize("CUSTOMER"),
   updateJobStatus,
+);
+router.post("/:id/apply", authenticateUser, authorize("WORKER"), applyForJob);
+router.get(
+  "/:id/applications",
+  authenticateUser,
+  authorize("CUSTOMER"),
+  getJobApplications,
 );
 export default router;

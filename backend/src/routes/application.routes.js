@@ -1,8 +1,27 @@
 import express from "express";
-import { getApplications } from "../controllers/application.controller.js";
-
 const router = express.Router();
 
-router.get("/", getApplications);
+import { authenticateUser } from "../middlewares/auth.middleware.js";
+import { authorize } from "../middlewares/role.middleware.js";
+import {
+  getMyApplications,
+  updateApplicationStatus,
+  getApplicationById,
+} from "../controllers/application.controller.js";
 
+router.get(
+  "/my-applications",
+  authenticateUser,
+  authorize("WORKER"),
+  getMyApplications,
+);
+
+router.patch(
+  "/:id/status",
+  authenticateUser,
+  authorize("CUSTOMER"),
+  updateApplicationStatus,
+);
+
+router.get("/:id", authenticateUser, getApplicationById);
 export default router;
