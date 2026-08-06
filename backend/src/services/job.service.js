@@ -174,3 +174,98 @@ export const updateJobService = async (jobId, customerId, jobData) => {
 
   return updatedJob;
 };
+
+export const deleteJobService = async (jobId, customerId) => {
+  // Find the job
+  const job = await prisma.job.findUnique({
+    where: {
+      id: jobId,
+    },
+  });
+
+  // Job not found
+  if (!job) {
+    const error = new Error("Job not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Ownership check
+  if (job.customerId !== customerId) {
+    const error = new Error("You are not authorized to delete this job");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  // Delete the job
+  await prisma.job.delete({
+    where: {
+      id: jobId,
+    },
+  });
+
+  return;
+};
+
+export const updateJobStatusService = async (jobId, customerId, status) => {
+  // Find Job
+  const job = await prisma.job.findUnique({
+    where: {
+      id: jobId,
+    },
+  });
+
+  if (!job) {
+    const error = new Error("Job not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Ownership Check
+  if (job.customerId !== customerId) {
+    const error = new Error("You are not authorized to update this job");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  // Validate Status
+  const allowedStatus = ["OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED"];
+
+  if (!allowedStatus.includes(status)) {
+    const error = new Error("Invalid job status");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Update Status
+  const updatedJob = await prisma.job.update({
+    where: {
+      id: jobId,
+    },
+    data: {
+      status,
+    },
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      updatedAt: true,
+    },
+  });
+
+  return updatedJob;
+};
+
+export const getMyJobsService = async (customerId) => {
+  const jobs = await prisma.job.findMany({
+    where: {
+      customerId,
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return jobs;
+};

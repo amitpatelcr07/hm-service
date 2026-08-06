@@ -1022,3 +1022,224 @@ PATCH /api/jobs/:id/status (introduces controlled state transitions).
 GET /api/jobs/my-jobs (uses the authenticated user's ID to filter data).
 
 Once those three are complete, your Job Module will be finished, and you'll be ready to move into the Job Application Module, where the interaction between customers and workers really begins.
+
+---
+
+Project Flow
+Client
+
+↓
+
+DELETE /api/jobs/:id
+
+↓
+
+authenticateUser
+
+↓
+
+authorize("CUSTOMER")
+
+↓
+
+Job Controller
+
+↓
+
+Job Service
+
+↓
+
+Find Job
+
+↓
+
+Ownership Check
+
+↓
+
+Delete Job
+
+↓
+
+Response
+
+---
+
+API Flow Diagram
+DELETE /api/jobs/:id
+│
+▼
+job.routes.js
+│
+▼
+deleteJob()
+│
+▼
+deleteJobService()
+│
+▼
+Find Job
+│
+▼
+Ownership Check
+│
+▼
+Delete Job
+│
+▼
+Return Success
+
+---
+
+API
+PATCH /api/jobs/:id/status
+Why PATCH?
+
+This API updates only one field (status).
+
+PUT → Replace or update the entire resource.
+PATCH → Update only specific fields.
+
+Here, we only want to change:
+
+status
+Business Flow
+
+Imagine this scenario:
+
+Customer Posts Job
+
+↓
+
+Status = OPEN
+
+↓
+
+Customer accepts a worker
+
+↓
+
+Status = IN_PROGRESS
+
+↓
+
+Work completed
+
+↓
+
+Status = COMPLETED
+
+↓
+
+OR
+
+Customer cancels
+
+↓
+
+Status = CANCELLED
+Workflow
+Client
+
+↓
+
+PATCH /api/jobs/:id/status
+
+↓
+
+authenticateUser
+
+↓
+
+authorize("CUSTOMER")
+
+↓
+
+Job Controller
+
+↓
+
+Job Service
+
+↓
+
+Find Job
+
+↓
+
+Ownership Check
+
+↓
+
+Update Status
+
+↓
+
+Return Updated Job
+
+---
+
+🚀 Next API (Last API of Job Module)
+GET /api/jobs/my-jobs
+
+This API returns only the jobs created by the currently logged-in customer.
+
+Why do we need this?
+
+Imagine a customer logs into HomeConnect.
+
+They should see:
+
+My Dashboard
+
+↓
+
+My Jobs
+
+↓
+
+Kitchen Sink Repair
+
+Bathroom Painting
+
+House Cleaning
+
+Instead of seeing everyone's jobs.
+
+Workflow
+Client
+
+↓
+
+GET /api/jobs/my-jobs
+
+↓
+
+authenticateUser
+
+↓
+
+authorize("CUSTOMER")
+
+↓
+
+Job Controller
+
+↓
+
+Job Service
+
+↓
+
+Prisma
+
+↓
+
+Find Jobs
+
+WHERE customerId = JWT userId
+
+↓
+
+Return Jobs
