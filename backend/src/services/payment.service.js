@@ -1,4 +1,4 @@
-import prisma from "../config/prismaClient.js";
+import prisma from "../config/prisma.js";
 
 export const createPaymentService = async (customerId, data) => {
   const { jobId, amount, paymentMethod } = data;
