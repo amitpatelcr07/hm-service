@@ -102,8 +102,8 @@ const EditJob = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white shadow rounded-lg p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">Edit Job</h1>
+      <div className="rounded-lg bg-white p-4 shadow sm:p-6 lg:p-8">
+        <h1 className="mb-6 text-2xl font-bold text-gray-800 sm:mb-8 sm:text-3xl">Edit Job</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Job Title */}
@@ -227,10 +227,10 @@ const EditJob = () => {
 
           {/* Buttons */}
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:gap-4">
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+              className="w-full rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700 sm:w-auto"
             >
               Update Job
             </button>
@@ -238,7 +238,7 @@ const EditJob = () => {
             <button
               type="button"
               onClick={() => navigate("/dashboard/my-jobs")}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium"
+              className="w-full rounded-lg bg-gray-200 px-6 py-3 font-medium text-gray-700 hover:bg-gray-300 sm:w-auto"
             >
               Cancel
             </button>

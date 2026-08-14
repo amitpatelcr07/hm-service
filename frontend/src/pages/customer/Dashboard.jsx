@@ -41,7 +41,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="space-y-6">
       {/* Welcome */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Welcome Back 👋</h1>
@@ -52,7 +52,7 @@ const Dashboard = () => {
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
         {/* Total Jobs */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-gray-500">Total Jobs</h2>
@@ -89,16 +89,16 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Jobs */}
-      <div className="bg-white rounded-lg shadow mt-8">
-        <div className="border-b px-6 py-4">
+      <div className="overflow-hidden rounded-lg bg-white shadow">
+        <div className="border-b px-4 py-4 sm:px-6">
           <h2 className="text-xl font-semibold">Recent Jobs</h2>
         </div>
 
-        <div className="p-6 overflow-x-auto">
+        <div className="overflow-x-auto p-4 sm:p-6">
           {dashboard.length === 0 ? (
             <p className="text-gray-500">No jobs found.</p>
           ) : (
-            <table className="w-full">
+            <table className="w-full min-w-[600px]">
               <thead>
                 <tr className="text-left border-b">
                   <th className="pb-3">Title</th>

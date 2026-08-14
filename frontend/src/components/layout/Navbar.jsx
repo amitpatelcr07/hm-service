@@ -1,7 +1,7 @@
 import { useAuth } from "../../hooks/useAuth";
 import LiveClock from "./LiveClock";
 
-const Navbar = () => {
+const Navbar = ({ onMenuToggle }) => {
   const { user, logout } = useAuth();
 
   // Get first letter of user's name
@@ -12,6 +12,9 @@ const Navbar = () => {
       <div className="flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* ================= LEFT ================= */}
         <div className="flex items-center gap-3">
+          <button type="button" onClick={onMenuToggle} aria-label="Open navigation menu" className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-700 hover:bg-slate-100 lg:hidden">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6"><path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" /></svg>
+          </button>
           {/* Logo Icon */}
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
             <svg

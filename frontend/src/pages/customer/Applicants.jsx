@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { updateApplicationStatus } from "../../services/applicationService";
+import { useLoading } from "../../hooks/useLoading";
 
 import { getJobApplications } from "../../services/jobService";
 
 const Applicants = () => {
+  const { startLoading, stopLoading } = useLoading();
   const { jobId } = useParams();
   const navigate = useNavigate();
 
@@ -28,6 +31,65 @@ const Applicants = () => {
       toast.error(error.response?.data?.message || "Failed to load applicants");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleStatusUpdate = async (applicationId, status) => {
+    const action = status === "ACCEPTED" ? "accept" : "reject";
+
+    const confirmed = window.confirm(
+      `Are you sure you want to ${action} this applicant?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      startLoading();
+
+      await updateApplicationStatus(applicationId, status);
+
+      toast.success(
+        status === "ACCEPTED"
+          ? "Applicant accepted successfully"
+          : "Applicant rejected successfully",
+      );
+
+      setApplications((prevApplications) =>
+        prevApplications.map((application) =>
+          application.id === applicationId
+            ? {
+                ...application,
+                status,
+              }
+            : application,
+        ),
+      );
+    } catch (error) {
+      console.error("Error updating application status:", error);
+
+      toast.error(
+        error.response?.data?.message || "Failed to update application status",
+      );
+    } finally {
+      stopLoading();
+    }
+  };
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "ACCEPTED":
+        return "bg-green-100 text-green-700";
+
+      case "REJECTED":
+        return "bg-red-100 text-red-700";
+
+      case "PENDING":
+        return "bg-yellow-100 text-yellow-700";
+
+      default:
+        return "bg-gray-100 text-gray-700";
     }
   };
 
@@ -111,7 +173,11 @@ const Applicants = () => {
                   </td>
 
                   <td className="px-6 py-4">
-                    <span className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-700">
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm ${getStatusClass(
+                        application.status,
+                      )}`}
+                    >
                       {application.status}
                     </span>
                   </td>
@@ -120,14 +186,22 @@ const Applicants = () => {
                     <div className="flex gap-2">
                       <button
                         type="button"
-                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                        onClick={() =>
+                          handleStatusUpdate(application.id, "ACCEPTED")
+                        }
+                        disabled={application.status !== "PENDING"}
+                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
                       >
                         Accept
                       </button>
 
                       <button
                         type="button"
-                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                        onClick={() =>
+                          handleStatusUpdate(application.id, "REJECTED")
+                        }
+                        disabled={application.status !== "PENDING"}
+                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
                       >
                         Reject
                       </button>

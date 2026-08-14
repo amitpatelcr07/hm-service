@@ -43,8 +43,8 @@ const CreateJob = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-white shadow rounded-lg p-8">
-      <h1 className="text-3xl font-bold mb-8">Create New Job</h1>
+    <div className="mx-auto max-w-4xl rounded-lg bg-white p-4 shadow sm:p-6 lg:p-8">
+      <h1 className="mb-6 text-2xl font-bold sm:mb-8 sm:text-3xl">Create New Job</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Title */}
@@ -144,7 +144,7 @@ const CreateJob = () => {
 
         <button
           type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg"
+          className="w-full rounded-lg bg-blue-600 px-8 py-3 text-white hover:bg-blue-700 sm:w-auto"
         >
           Create Job
         </button>

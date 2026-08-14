@@ -57,7 +57,7 @@ const MyJobs = () => {
       {/* Header */}
 
       <div>
-        <h1 className="text-3xl font-bold text-gray-800">My Jobs</h1>
+        <h1 className="text-2xl font-bold text-gray-800 sm:text-3xl">My Jobs</h1>
 
         <p className="text-gray-500 mt-1">Manage the jobs you have created.</p>
       </div>
@@ -75,8 +75,8 @@ const MyJobs = () => {
       ) : (
         /* Jobs Table */
 
-        <div className="bg-white rounded-lg shadow overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto rounded-lg bg-white shadow">
+          <table className="w-full min-w-[760px]">
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
@@ -125,7 +125,7 @@ const MyJobs = () => {
                   </td>
 
                   <td className="px-6 py-4">
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
                         onClick={() =>

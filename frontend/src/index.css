@@ -1,4 +1,10 @@
 @import "tailwindcss";
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body { min-width: 320px; overflow-x: hidden; }
+  button, input, select, textarea { font: inherit; }
+}
 @keyframes spin {
   from {
     transform: rotate(0deg);

@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { saveAuthToken, saveUser } from "../../utils/authStorage";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 function Login() {
   const { login } = useAuth();
@@ -38,9 +39,11 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-center mb-2">HomeConnect</h1>
+    <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4 sm:p-6">
+      <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-lg sm:p-8">
+        <h1 className="mb-2 text-center text-2xl font-bold sm:text-3xl">
+          HomeConnect
+        </h1>
 
         <p className="text-gray-500 text-center mb-8">Login to your account</p>
 
@@ -78,6 +81,17 @@ function Login() {
             Login
           </button>
         </form>
+        <div className="mt-6 text-center">
+          <p className="text-gray-500">
+            Don't have an account?{" "}
+            <NavLink
+              to="/register"
+              className="font-semibold text-blue-600 hover:underline"
+            >
+              Register
+            </NavLink>
+          </p>
+        </div>
       </div>
     </div>
   );
