@@ -6,6 +6,12 @@ export const getJobs = async () => {
   return response.data;
 };
 
+export const getMyJobs = async () => {
+  const response = await api.get("/jobs/my-jobs");
+  console.log("Fetched my jobs:", response.data);
+  return response.data;
+};
+
 export const createJob = async (jobData) => {
   console.log("Creating a new job with data:", jobData); // Log the action
   const response = await api.post("/jobs", jobData);

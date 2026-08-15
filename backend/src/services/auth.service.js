@@ -4,7 +4,6 @@ import bcrypt from "bcrypt";
 export const registerUser = async (data) => {
   const { fullName, email, password, phone, role } = data;
 
-  // Check if email already exists
   const existingUser = await prisma.user.findUnique({
     where: {
       email,
@@ -15,34 +14,48 @@ export const registerUser = async (data) => {
     throw new Error("Email already exists");
   }
 
-  // Hash password
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Save user
-  const user = await prisma.user.create({
-    data: {
-      fullName,
-      email,
-      password: hashedPassword,
-      phone,
-      role,
-    },
-    select: {
-      id: true,
-      fullName: true,
-      email: true,
-      phone: true,
-      role: true,
-      createdAt: true,
-      updatedAt: true,
-    },
+  const user = await prisma.$transaction(async (tx) => {
+    const createdUser = await tx.user.create({
+      data: {
+        fullName,
+        email,
+        password: hashedPassword,
+        phone,
+        role,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phone: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (role === "WORKER") {
+      await tx.workerProfile.create({
+        data: {
+          userId: createdUser.id,
+          bio: null,
+          skills: [],
+          experience: 0,
+          hourlyRate: 0,
+          isAvailable: true,
+        },
+      });
+    }
+
+    return createdUser;
   });
 
   return user;
 };
 
 export const loginUser = async (email, password) => {
-  // Find user by email
   const user = await prisma.user.findUnique({
     where: {
       email,
@@ -58,17 +71,18 @@ export const loginUser = async (email, password) => {
       password: true,
     },
   });
-  const { password: hashedPassword, ...userWithoutPassword } = user;
-  console.log("User found in loginUser:", userWithoutPassword);
+
   if (!user) {
     throw new Error("User not found");
   }
 
-  // Check if password is correct
   const isMatch = await bcrypt.compare(password, user.password);
+
   if (!isMatch) {
     throw new Error("Invalid password");
   }
+
+  const { password: _password, ...userWithoutPassword } = user;
 
   return userWithoutPassword;
 };

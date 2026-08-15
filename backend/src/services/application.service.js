@@ -3,16 +3,53 @@ import prisma from "../config/prisma.js";
 export const applyForJobService = async (jobId, userId, applicationData) => {
   const { proposal, expectedPrice, estimatedDays } = applicationData;
 
-  // Step 1 - Find Worker Profile
-  const workerProfile = await prisma.workerProfile.findUnique({
+  let workerProfile = await prisma.workerProfile.findUnique({
     where: {
       userId,
     },
   });
 
   if (!workerProfile) {
-    const error = new Error("Worker profile not found");
-    error.statusCode = 404;
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        role: true,
+      },
+    });
+
+    if (user?.role === "WORKER") {
+      workerProfile = await prisma.workerProfile.create({
+        data: {
+          userId,
+          bio: null,
+          skills: [],
+          experience: 0,
+          hourlyRate: 0,
+          isAvailable: true,
+        },
+      });
+    } else {
+      const error = new Error("Worker profile not found");
+      error.statusCode = 404;
+      throw error;
+    }
+  }
+
+  const isProfileComplete =
+    workerProfile.bio &&
+    Array.isArray(workerProfile.skills) &&
+    workerProfile.skills.length > 0 &&
+    Number(workerProfile.experience) >= 0 &&
+    Number(workerProfile.hourlyRate) > 0;
+
+  if (!isProfileComplete) {
+    const error = new Error(
+      "Please complete your worker profile before applying for a job.",
+    );
+    error.statusCode = 400;
     throw error;
   }
 

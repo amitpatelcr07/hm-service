@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { getJobs, deleteJob } from "../../services/jobService";
+import { getMyJobs, deleteJob } from "../../services/jobService";
 import { useLoading } from "../../hooks/useLoading";
 import { useNavigate } from "react-router-dom";
 const MyJobs = () => {
@@ -14,11 +14,11 @@ const MyJobs = () => {
 
   const fetchJobs = async () => {
     try {
-      const response = await getJobs();
+      const response = await getMyJobs();
 
       console.log("My Jobs response:", response);
 
-      setJobs(response.data.jobs || []);
+      setJobs(response.data || []);
     } catch (error) {
       console.error("Error fetching jobs:", error);
 
@@ -57,7 +57,9 @@ const MyJobs = () => {
       {/* Header */}
 
       <div>
-        <h1 className="text-2xl font-bold text-gray-800 sm:text-3xl">My Jobs</h1>
+        <h1 className="text-2xl font-bold text-gray-800 sm:text-3xl">
+          My Jobs
+        </h1>
 
         <p className="text-gray-500 mt-1">Manage the jobs you have created.</p>
       </div>

@@ -16,9 +16,11 @@ import Applicants from "../pages/customer/Applicants";
 
 // // Worker Pages
 // import WorkerDashboard from "../pages/worker/Dashboard";
-// import BrowseJobs from "../pages/worker/BrowseJobs";
-// import MyApplications from "../pages/worker/MyApplications";
-// import WorkerProfile from "../pages/worker/Profile";
+import BrowseJobs from "../pages/worker/BrowseJobs";
+import JobDetails from "../pages/worker/JobDetails";
+import MyApplications from "../pages/worker/MyApplications";
+import ApplyJob from "../pages/worker/ApplyJob";
+import WorkerProfile from "../pages/worker/Profile";
 
 // // Shared Pages
 // import Payments from "../pages/shared/Payments";
@@ -65,11 +67,13 @@ const AppRoutes = () => {
           <Route path="applicants/:jobId" element={<Applicants />} />
 
           {/* Worker */}
-          {/* <Route path="browse-jobs" element={<BrowseJobs />} /> */}
+          <Route path="browse-jobs" element={<BrowseJobs />} />
 
-          {/* <Route path="my-applications" element={<MyApplications />} /> */}
+          <Route path="job-details/:id" element={<JobDetails />} />
 
-          {/* <Route path="profile" element={<WorkerProfile />} /> */}
+          <Route path="my-applications" element={<MyApplications />} />
+          <Route path="apply-job/:jobId" element={<ApplyJob />} />
+          <Route path="profile" element={<WorkerProfile />} />
 
           {/* Shared */}
           {/* <Route path="payments" element={<Payments />} /> */}
