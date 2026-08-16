@@ -31,7 +31,7 @@ export const login = async (req, res) => {
     console.log("User found:", user);
     if (user) {
       const token = generateToken(user);
-      console.log("Generated token:", token);
+
       return res.status(200).json({
         success: true,
         message: "Login successful",
