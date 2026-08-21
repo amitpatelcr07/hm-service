@@ -1,8 +1,12 @@
 import axios from "axios";
 import { getAuthToken } from "../utils/authStorage";
 
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL || "https://hm-service.onrender.com"
+).replace(/\/$/, "");
+
 const api = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: `${API_BASE_URL}/api`,
   headers: {
     "Content-Type": "application/json",
   },

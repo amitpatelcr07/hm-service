@@ -28,6 +28,8 @@ import WorkerProfile from "../pages/worker/Profile";
 // import Home from "../pages/shared/Home";
 // import NotFound from "../pages/shared/NotFound";
 
+import Home from "../pages/home/Home";
+
 // Auth
 import ProtectedRoute from "./ProtectedRoute";
 import { useAuth } from "../hooks/useAuth";
@@ -39,7 +41,7 @@ const AppRoutes = () => {
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
-        {/* <Route path="/" element={<Home />} /> */}
+        <Route path="/" element={<Home />} />
 
         <Route path="/login" element={<Login />} />
 

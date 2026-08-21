@@ -8,10 +8,27 @@ import paymentRoutes from "./routes/payment.routes.js";
 import cors from "cors";
 const app = express();
 
+const allowedOrigins = new Set([
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://hm-service-lac.vercel.app",
+]);
+
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:3000"], // Replace with your frontend URL
+    origin: (origin, callback) => {
+      const isVercelPreview =
+        origin?.startsWith("https://hm-service-") &&
+        origin.endsWith(".vercel.app");
+
+      if (!origin || allowedOrigins.has(origin) || isVercelPreview) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Origin is not allowed by CORS"));
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true, // Allow cookies to be sent
