@@ -98,9 +98,36 @@ model Payment {
   transactionId String?       @unique
   paymentMethod String?
   paidAt        DateTime?
+  receiptNumber String?       @unique
+  customerCashConfirmedAt DateTime?
+  customerCashConfirmedBy String?
+  workerCashConfirmedAt DateTime?
+  workerCashConfirmedBy String?
+  workerConfirmationDeadline DateTime?
+  disputeReason String?
+  resolvedBy String?
+  resolvedAt DateTime?
+  resolutionNote String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   job           Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  auditLogs     PaymentAuditLog[]
+}
+
+model PaymentAuditLog {
+  id             String   @id @default(cuid())
+  paymentId      String
+  actorId        String?
+  actorRole      Role?
+  action         String
+  previousStatus PaymentStatus?
+  newStatus      PaymentStatus?
+  note           String?
+  metadata       Json?
+  createdAt      DateTime @default(now())
+  payment        Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId, createdAt])
 }
 
 model Message {
@@ -130,6 +157,7 @@ model Notification {
 enum Role {
   CUSTOMER
   WORKER
+  ADMIN
 }
 
 enum JobStatus {
@@ -147,8 +175,13 @@ enum ApplicationStatus {
 
 enum PaymentStatus {
   PENDING
+  CASH_PENDING
+  CASH_CUSTOMER_CONFIRMED
+  CASH_DISPUTED
+  CASH_REVIEW
   SUCCESS
   FAILED
+  REFUNDED
 }
 
 enum JobCategory {

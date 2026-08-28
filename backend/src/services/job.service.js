@@ -237,6 +237,27 @@ export const updateJobStatusService = async (jobId, customerId, status) => {
     throw error;
   }
 
+  // A job becomes payable only when its customer confirms that the worker has
+  // finished it. An accepted application is the assignment for that job.
+  if (status === "COMPLETED") {
+    if (job.status !== "IN_PROGRESS") {
+      const error = new Error("Only an in-progress job can be marked completed");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const acceptedApplication = await prisma.jobApplication.findFirst({
+      where: { jobId, status: "ACCEPTED" },
+      select: { id: true },
+    });
+
+    if (!acceptedApplication) {
+      const error = new Error("A worker must be accepted before completing this job");
+      error.statusCode = 400;
+      throw error;
+    }
+  }
+
   // Update Status
   const updatedJob = await prisma.job.update({
     where: {

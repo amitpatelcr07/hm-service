@@ -4,6 +4,10 @@ import bcrypt from "bcrypt";
 export const registerUser = async (data) => {
   const { fullName, email, password, phone, role } = data;
 
+  if (!["CUSTOMER", "WORKER"].includes(role)) {
+    throw new Error("Choose CUSTOMER or WORKER when registering");
+  }
+
   const existingUser = await prisma.user.findUnique({
     where: {
       email,

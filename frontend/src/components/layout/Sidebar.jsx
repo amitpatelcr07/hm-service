@@ -46,12 +46,23 @@ const Sidebar = ({ isOpen, onClose }) => {
               <NavLink to="/dashboard/profile" className={linkClass} onClick={onClose}>
                 Profile
               </NavLink>
+              <NavLink to="/dashboard/cash-payments" className={linkClass} onClick={onClose}>
+                Cash Payments
+              </NavLink>
             </>
           )}
 
-          <NavLink to="/dashboard/payments" className={linkClass} onClick={onClose}>
-            Payments
-          </NavLink>
+          {user?.role === "ADMIN" && (
+            <NavLink to="/dashboard/admin/payment-reviews" className={linkClass} onClick={onClose}>
+              Payment Reviews
+            </NavLink>
+          )}
+
+          {user?.role === "CUSTOMER" && (
+            <NavLink to="/dashboard/payments" className={linkClass} onClick={onClose}>
+              Payments
+            </NavLink>
+          )}
 
           <NavLink to="/dashboard/reviews" className={linkClass} onClick={onClose}>
             Reviews
