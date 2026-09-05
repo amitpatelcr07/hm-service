@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 // Auth
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
-
+import VerifyEmail from "../pages/auth/VerifyEmail";
 // Layout
 import DashboardLayout from "../layouts/DashboardLayout";
 
@@ -51,6 +51,7 @@ const AppRoutes = () => {
 
         <Route path="/register" element={<Register />} />
 
+        <Route path="/verify-email/:token" element={<VerifyEmail />} />
         {/* Customer Dashboard */}
         <Route
           path="/dashboard"

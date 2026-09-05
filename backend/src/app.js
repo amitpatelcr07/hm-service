@@ -6,23 +6,24 @@ import applicationRoutes from "./routes/application.routes.js";
 import reviewRoutes from "./routes/review.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import cors from "cors";
+import "dotenv/config";
 const app = express();
 
-const allowedOrigins = new Set([
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://hm-service-lac.vercel.app",
-]);
+const allowedOrigins = new Set(
+  (
+    process.env.FRONTEND_ORIGINS ||
+    "http://localhost:5173,http://localhost:3000,https://hm-service-lac.vercel.app"
+  )
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+);
 
 app.use(express.json());
 app.use(
   cors({
     origin: (origin, callback) => {
-      const isVercelPreview =
-        origin?.startsWith("https://hm-service-") &&
-        origin.endsWith(".vercel.app");
-
-      if (!origin || allowedOrigins.has(origin) || isVercelPreview) {
+      if (!origin || allowedOrigins.has(origin)) {
         callback(null, true);
         return;
       }

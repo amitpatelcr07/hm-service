@@ -1,11 +1,6 @@
 import { createContext, useEffect, useState } from "react";
-import {
-  getAuthToken,
-  getUser,
-  saveAuthToken,
-  saveUser,
-  logout as clearAuthStorage,
-} from "../utils/authStorage";
+import api from "../api/axios";
+import { clearAccessToken, setAccessToken } from "../utils/authSession";
 
 export const AuthContext = createContext();
 
@@ -15,29 +10,35 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const storedToken = getAuthToken();
-    const storedUser = getUser();
-
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(storedUser);
-    }
-    setLoading(false);
+    api
+      .post("/auth/refresh")
+      .then(({ data }) => {
+        setAccessToken(data.token);
+        setToken(data.token);
+        setUser(data.data);
+      })
+      .catch(() => {
+        clearAccessToken();
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const login = (token, user) => {
-    saveAuthToken(token);
-    saveUser(user);
+    setAccessToken(token);
 
     setToken(token);
     setUser(user);
   };
 
-  const logout = () => {
-    clearAuthStorage();
-
-    setToken(null);
-    setUser(null);
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } finally {
+      clearAccessToken();
+      setToken(null);
+      setUser(null);
+      window.location.replace("/login");
+    }
   };
 
   return (

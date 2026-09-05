@@ -8,20 +8,49 @@ datasource db {
 }
 
 model User {
-  id               String         @id @default(cuid())
-  email            String         @unique
+  id               String                  @id @default(cuid())
+  email            String                  @unique
   password         String
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
   fullName         String
   phone            String?
   role             Role
-  jobs             Job[]          @relation("CustomerJobs")
-  messagesReceived Message[]      @relation("MessageReceiver")
-  messagesSent     Message[]      @relation("MessageSender")
+
+  emailVerified    Boolean                 @default(false)
+  emailVerifiedAt  DateTime?
+
+  jobs             Job[]                   @relation("CustomerJobs")
+  messagesReceived Message[]               @relation("MessageReceiver")
+  messagesSent     Message[]               @relation("MessageSender")
   notifications    Notification[]
-  reviewsGiven     Review[]       @relation("CustomerReviews")
+  reviewsGiven     Review[]                @relation("CustomerReviews")
   workerProfile    WorkerProfile?
+  verificationTokens EmailVerificationToken[]
+  refreshTokens    RefreshToken[]
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model WorkerProfile {

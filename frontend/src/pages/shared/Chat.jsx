@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import socket, { connectSocket } from "../../services/socket.service";
-import { getAuthToken } from "../../utils/authStorage";
+import { getAccessToken } from "../../utils/authSession";
 
 const Chat = () => {
   const { jobId } = useParams();
@@ -13,7 +13,7 @@ const Chat = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = getAuthToken();
+    const token = getAccessToken();
 
     if (!token) {
       toast.error("Please login to use chat");
