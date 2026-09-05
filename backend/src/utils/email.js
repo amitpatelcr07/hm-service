@@ -10,10 +10,10 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendVerificationEmail = async (email, token) => {
-  const frontendOrigins = process.env.FRONTEND_ORIGINS?.split(",") || [];
-  const thirdOrigin = frontendOrigins[2]; // "https://hm-service-lac.vercel.app"
-
-  const verificationUrl = `${thirdOrigin}/verify-email/${token}`;
+  const frontendUrl = (
+    process.env.FRONTEND_URL || "https://hm-service-lac.vercel.app"
+  ).replace(/\/$/, "");
+  const verificationUrl = `${frontendUrl}/verify-email/${encodeURIComponent(token)}`;
   await transporter.sendMail({
     from: `"HomeConnect" <${process.env.EMAIL_USER}>`,
     to: email,

@@ -12,7 +12,7 @@ const app = express();
 const allowedOrigins = new Set(
   (
     process.env.FRONTEND_ORIGINS ||
-    "http://localhost:5173,http://localhost:3000,https://hm-service-lac.vercel.app"
+    `http://localhost:5173,http://localhost:3000,${process.env.FRONTEND_URL || "https://hm-service-lac.vercel.app"}`
   )
     .split(",")
     .map((origin) => origin.trim())
