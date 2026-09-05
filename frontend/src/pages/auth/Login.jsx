@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { loginUser } from "../../services/auth.service";
 import toast from "react-hot-toast";
-import { saveAuthToken, saveUser } from "../../utils/authStorage";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
@@ -13,6 +12,7 @@ function Login() {
     email: "",
     password: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -23,6 +23,8 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     try {
       const response = await loginUser(formData);
@@ -30,11 +32,10 @@ function Login() {
       login(response.token, response.data);
 
       toast.success(response.message);
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 1000);
+      navigate("/dashboard");
     } catch (error) {
       toast.error(error.response?.data?.message || "Login Failed");
+      setIsSubmitting(false);
     }
   };
 
@@ -175,6 +176,7 @@ function Login() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
+                disabled={isSubmitting}
                 placeholder="Enter email"
                 required
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -196,6 +198,7 @@ function Login() {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
+                disabled={isSubmitting}
                 placeholder="Enter password"
                 required
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -204,9 +207,13 @@ function Login() {
 
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition"
+              disabled={isSubmitting}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              Login
+              {isSubmitting && (
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true" />
+              )}
+              {isSubmitting ? "Logging in..." : "Login"}
             </button>
           </form>
 

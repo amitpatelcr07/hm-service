@@ -35,6 +35,11 @@ export const updateJob = async (jobId, updatedData) => {
   return response.data;
 };
 
+export const updateJobStatus = async (jobId, status) => {
+  const response = await api.patch(`/jobs/${jobId}/status`, { status });
+  return response.data;
+};
+
 export const getJobApplications = async (jobId) => {
   const response = await api.get(`/jobs/${jobId}/applications`);
 

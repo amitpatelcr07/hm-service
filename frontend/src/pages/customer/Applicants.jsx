@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { updateApplicationStatus } from "../../services/applicationService";
 import { useLoading } from "../../hooks/useLoading";
 
-import { getJobApplications } from "../../services/jobService";
+import { getJobApplications, updateJobStatus } from "../../services/jobService";
 
 const Applicants = () => {
   const { startLoading, stopLoading } = useLoading();
@@ -72,6 +72,24 @@ const Applicants = () => {
       toast.error(
         error.response?.data?.message || "Failed to update application status",
       );
+    } finally {
+      stopLoading();
+    }
+  };
+
+  const handleCompleteJob = async () => {
+    const confirmed = window.confirm(
+      "Confirm that this worker has completed the job. This will unlock payment for the job.",
+    );
+    if (!confirmed) return;
+
+    try {
+      startLoading();
+      await updateJobStatus(jobId, "COMPLETED");
+      toast.success("Job completed. You can now make the payment.");
+      navigate("/dashboard/payments");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Could not complete the job");
     } finally {
       stopLoading();
     }
@@ -205,6 +223,25 @@ const Applicants = () => {
                       >
                         Reject
                       </button>
+
+                      {application.status === "ACCEPTED" && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/dashboard/chat/${jobId}`)}
+                            className="rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
+                          >
+                            Chat
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleCompleteJob}
+                            className="rounded bg-indigo-600 px-3 py-1 text-white hover:bg-indigo-700"
+                          >
+                            Confirm Job Complete
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

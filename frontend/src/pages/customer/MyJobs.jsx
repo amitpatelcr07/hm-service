@@ -149,7 +149,6 @@ const MyJobs = () => {
                       </button>
 
                       <button
-                        loadingText="Deleting..."
                         onClick={() => handleDelete(job.id)}
                         type="button"
                         className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"

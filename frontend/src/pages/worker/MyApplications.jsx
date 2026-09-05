@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { getMyApplications } from "../../services/updateApplicationStatus.service";
 
@@ -15,6 +16,7 @@ const statusLabels = {
 };
 
 function MyApplications() {
+  const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -135,6 +137,18 @@ function MyApplications() {
                   {application.proposal || "No proposal provided."}
                 </p>
               </div>
+
+              {application.status === "ACCEPTED" && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate(`/dashboard/chat/${application.job.id}`)
+                  }
+                  className="mt-5 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
+                >
+                  Open chat
+                </button>
+              )}
             </div>
           ))}
         </div>
