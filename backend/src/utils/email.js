@@ -12,7 +12,22 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+const emailConfigurationError = () => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    const error = new Error("Email service is not configured");
+    error.code = "EMAIL_CONFIG_MISSING";
+    return error;
+  }
+
+  return null;
+};
+
 export const sendVerificationEmail = async (email, token) => {
+  const configurationError = emailConfigurationError();
+  if (configurationError) {
+    throw configurationError;
+  }
+
   const frontendUrl = (
     process.env.FRONTEND_URL || "https://hm-service-lac.vercel.app"
   ).replace(/\/$/, "");

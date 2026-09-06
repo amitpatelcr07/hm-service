@@ -38,14 +38,16 @@ export const register = async (req, res) => {
     });
   } catch (error) {
     const isEmailDeliveryError =
-      error.code?.startsWith("E") ||
+      error.code === "EMAIL_CONFIG_MISSING" ||
+      error.code === "EAUTH" ||
+      error.code === "ECONNECTION" ||
       error.code === "ETIMEDOUT" ||
       error.code === "ESOCKET";
 
     res.status(isEmailDeliveryError ? 503 : 400).json({
       success: false,
       message: isEmailDeliveryError
-        ? "Account created, but verification email could not be sent. Please try again later."
+        ? "Registration is temporarily unavailable because verification email delivery failed. Please try again later."
         : error.message,
     });
   }
