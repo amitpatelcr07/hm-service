@@ -2,6 +2,9 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 const transporter = nodemailer.createTransport({
   service: "gmail",
+  connectionTimeout: 15000,
+  greetingTimeout: 15000,
+  socketTimeout: 15000,
 
   auth: {
     user: process.env.EMAIL_USER,
