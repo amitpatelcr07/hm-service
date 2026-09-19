@@ -3,8 +3,7 @@ import nodemailer from "nodemailer";
 const useMockEmailMode = () =>
   (process.env.EMAIL_SEND_MODE || "live").toLowerCase() === "mock";
 
-const getSenderAddress = () =>
-  process.env.EMAIL_FROM || process.env.EMAIL_USER || "noreply@localhost";
+const getSenderAddress = () => process.env.EMAIL_FROM;
 
 const getSenderName = () => process.env.EMAIL_FROM_NAME || "HomeConnect";
 
@@ -23,8 +22,14 @@ const transporter = nodemailer.createTransport({
 });
 
 const emailConfigurationError = () => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-    const error = new Error("Email service is not configured");
+  if (
+    !process.env.EMAIL_USER ||
+    !process.env.EMAIL_PASSWORD ||
+    !process.env.EMAIL_FROM
+  ) {
+    const error = new Error(
+      "Email service requires EMAIL_USER, EMAIL_PASSWORD, and EMAIL_FROM",
+    );
     error.code = "EMAIL_CONFIG_MISSING";
     return error;
   }
@@ -48,7 +53,7 @@ export const sendVerificationEmail = async (email, token) => {
   ).replace(/\/$/, "");
   const verificationUrl = `${frontendUrl}/verify-email/${encodeURIComponent(token)}`;
 
-  await transporter.sendMail({
+  const deliveryInfo = await transporter.sendMail({
     from: `"${getSenderName()}" <${getSenderAddress()}>`,
     to: email,
     subject: "Verify your HomeConnect email address",
@@ -337,5 +342,11 @@ export const sendVerificationEmail = async (email, token) => {
 </body>
 </html>
 `,
+  });
+
+  console.log("Verification email accepted by SMTP server:", {
+    messageId: deliveryInfo.messageId,
+    accepted: deliveryInfo.accepted,
+    rejected: deliveryInfo.rejected,
   });
 };
