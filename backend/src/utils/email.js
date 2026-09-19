@@ -3,6 +3,11 @@ import nodemailer from "nodemailer";
 const useMockEmailMode = () =>
   (process.env.EMAIL_SEND_MODE || "live").toLowerCase() === "mock";
 
+const getSenderAddress = () =>
+  process.env.EMAIL_FROM || process.env.EMAIL_USER || "noreply@localhost";
+
+const getSenderName = () => process.env.EMAIL_FROM_NAME || "HomeConnect";
+
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || "smtp.gmail.com",
   port: Number(process.env.EMAIL_PORT || 465),
@@ -42,11 +47,12 @@ export const sendVerificationEmail = async (email, token) => {
     process.env.FRONTEND_URL || "https://hm-service-lac.vercel.app"
   ).replace(/\/$/, "");
   const verificationUrl = `${frontendUrl}/verify-email/${encodeURIComponent(token)}`;
+
   await transporter.sendMail({
-    from: `"HomeConnect" <${process.env.EMAIL_USER}>`,
+    from: `"${getSenderName()}" <${getSenderAddress()}>`,
     to: email,
     subject: "Verify your HomeConnect email address",
-
+    text: `Welcome to HomeConnect! Please verify your email by visiting: ${verificationUrl}`,
     html: `
 <!DOCTYPE html>
 <html lang="en">
@@ -224,6 +230,15 @@ export const sendVerificationEmail = async (email, token) => {
                 >
                   ${verificationUrl}
                 </a>
+              </p>
+
+              <p style="
+                margin: 20px 0 0 0;
+                color: #6b7280;
+                font-size: 12px;
+                line-height: 1.6;
+              ">
+                If you did not create this account, you can ignore this email.
               </p>
 
               <p style="
