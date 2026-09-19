@@ -1,7 +1,12 @@
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
+
+const useMockEmailMode = () =>
+  (process.env.EMAIL_SEND_MODE || "live").toLowerCase() === "mock";
+
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: process.env.EMAIL_HOST || "smtp.gmail.com",
+  port: Number(process.env.EMAIL_PORT || 465),
+  secure: process.env.EMAIL_SECURE !== "false",
   connectionTimeout: 15000,
   greetingTimeout: 15000,
   socketTimeout: 15000,
@@ -23,6 +28,11 @@ const emailConfigurationError = () => {
 };
 
 export const sendVerificationEmail = async (email, token) => {
+  if (useMockEmailMode()) {
+    console.log(`[mock-email] Verification email for ${email}: ${token}`);
+    return;
+  }
+
   const configurationError = emailConfigurationError();
   if (configurationError) {
     throw configurationError;

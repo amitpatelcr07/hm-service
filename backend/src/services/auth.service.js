@@ -127,11 +127,12 @@ export const registerUser = async (data) => {
   try {
     await sendVerificationEmail(user.email, verificationToken);
   } catch (error) {
-    await prisma.user.delete({ where: { id: user.id } });
     console.error("Verification email delivery failed:", {
       code: error.code,
       message: error.message,
     });
+
+    await prisma.user.delete({ where: { id: user.id } }).catch(() => {});
     throw error;
   }
 
