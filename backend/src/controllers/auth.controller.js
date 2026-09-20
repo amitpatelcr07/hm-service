@@ -13,17 +13,42 @@ import {
 } from "../utils/refresh-token.js";
 export const register = async (req, res) => {
   try {
-    const user = await registerUser(req.body);
+    const { fullName, email, password, role } = req.body;
 
+    if (!fullName || !email || !password || !role) {
+      return res.status(400).json({
+        success: false,
+        message: "Full name, email, password, and role are required",
+      });
+    }
+
+    if (!["CUSTOMER", "WORKER"].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Role must be CUSTOMER or WORKER",
+      });
+    }
+
+    const user = await registerUser(req.body);
+    console.log("User registered successfully:", user);
     res.status(201).json({
       success: true,
       message: "User registered successfully",
       data: user,
     });
   } catch (error) {
-    res.status(400).json({
+    const isEmailDeliveryError =
+      error.code === "EMAIL_CONFIG_MISSING" ||
+      error.code === "EAUTH" ||
+      error.code === "ECONNECTION" ||
+      error.code === "ETIMEDOUT" ||
+      error.code === "ESOCKET";
+
+    res.status(isEmailDeliveryError ? 503 : 400).json({
       success: false,
-      message: error.message,
+      message: isEmailDeliveryError
+        ? "Registration is temporarily unavailable because verification email delivery failed. Please try again later."
+        : error.message,
     });
   }
 };

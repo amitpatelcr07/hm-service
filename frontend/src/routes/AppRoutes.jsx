@@ -36,10 +36,10 @@ import Home from "../pages/home/Home";
 
 // Auth
 import ProtectedRoute from "./ProtectedRoute";
-import { useAuth } from "../hooks/useAuth";
+// import { useAuth } from "../hooks/useAuth";
 
 const AppRoutes = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   return (
     <BrowserRouter>

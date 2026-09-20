@@ -12,3 +12,18 @@
 - `POST /api/payments/:id/cash/resolve` (admin): requires `resolution` (`SUCCESS`, `FAILED`, or `REFUNDED`) and `resolutionNote`.
 
 Set a user's `role` to `ADMIN` through a controlled database/admin provisioning process; public registration cannot create admins. Run `npm test` for cash state-transition checks. Apply Prisma migrations before deploying.
+
+## Render environment variables
+
+Registration sends an email verification link before it returns success. Configure these variables in the Render service; local `.env` values are not deployed automatically:
+
+- `DATABASE_URL`
+- `JWT_SECRET`
+- `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_SECURE`
+- `EMAIL_USER`, `EMAIL_PASSWORD`
+- `EMAIL_FROM`, `EMAIL_FROM_NAME`
+- `EMAIL_SEND_MODE=live`
+- `FRONTEND_URL=https://hm-service-lac.vercel.app`
+- `FRONTEND_ORIGINS=https://hm-service-lac.vercel.app`
+
+For Brevo SMTP, use `smtp-relay.brevo.com`, port `587`, and `EMAIL_SECURE=false`. `EMAIL_USER` and `EMAIL_PASSWORD` must be the SMTP login and SMTP key from Brevo, not the Brevo web account password. After changing these variables, redeploy the service. A registration request returns `503` when email delivery is not configured or the SMTP credentials are rejected.

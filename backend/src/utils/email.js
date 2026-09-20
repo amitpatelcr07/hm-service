@@ -1,7 +1,19 @@
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
+
+const useMockEmailMode = () =>
+  (process.env.EMAIL_SEND_MODE || "live").toLowerCase() === "mock";
+
+const getSenderAddress = () => process.env.EMAIL_FROM;
+
+const getSenderName = () => process.env.EMAIL_FROM_NAME || "HomeConnect";
+
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: process.env.EMAIL_HOST || "smtp.gmail.com",
+  port: Number(process.env.EMAIL_PORT || 465),
+  secure: process.env.EMAIL_SECURE !== "false",
+  connectionTimeout: 15000,
+  greetingTimeout: 15000,
+  socketTimeout: 15000,
 
   auth: {
     user: process.env.EMAIL_USER,
@@ -9,16 +21,43 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendVerificationEmail = async (email, token) => {
-  const frontendOrigins = process.env.FRONTEND_ORIGINS?.split(",") || [];
-  const thirdOrigin = frontendOrigins[2]; // "https://hm-service-lac.vercel.app"
+const emailConfigurationError = () => {
+  if (
+    !process.env.EMAIL_USER ||
+    !process.env.EMAIL_PASSWORD ||
+    !process.env.EMAIL_FROM
+  ) {
+    const error = new Error(
+      "Email service requires EMAIL_USER, EMAIL_PASSWORD, and EMAIL_FROM",
+    );
+    error.code = "EMAIL_CONFIG_MISSING";
+    return error;
+  }
 
-  const verificationUrl = `${thirdOrigin}/verify-email/${token}`;
-  await transporter.sendMail({
-    from: `"HomeConnect" <${process.env.EMAIL_USER}>`,
+  return null;
+};
+
+export const sendVerificationEmail = async (email, token) => {
+  if (useMockEmailMode()) {
+    console.log(`[mock-email] Verification email for ${email}: ${token}`);
+    return;
+  }
+
+  const configurationError = emailConfigurationError();
+  if (configurationError) {
+    throw configurationError;
+  }
+
+  const frontendUrl = (
+    process.env.FRONTEND_URL || "https://hm-service-lac.vercel.app"
+  ).replace(/\/$/, "");
+  const verificationUrl = `${frontendUrl}/verify-email/${encodeURIComponent(token)}`;
+
+  const deliveryInfo = await transporter.sendMail({
+    from: `"${getSenderName()}" <${getSenderAddress()}>`,
     to: email,
     subject: "Verify your HomeConnect email address",
-
+    text: `Welcome to HomeConnect! Please verify your email by visiting: ${verificationUrl}`,
     html: `
 <!DOCTYPE html>
 <html lang="en">
@@ -199,6 +238,15 @@ export const sendVerificationEmail = async (email, token) => {
               </p>
 
               <p style="
+                margin: 20px 0 0 0;
+                color: #6b7280;
+                font-size: 12px;
+                line-height: 1.6;
+              ">
+                If you did not create this account, you can ignore this email.
+              </p>
+
+              <p style="
                 margin: 28px 0 0 0;
                 color: #6b7280;
                 font-size: 13px;
@@ -294,5 +342,11 @@ export const sendVerificationEmail = async (email, token) => {
 </body>
 </html>
 `,
+  });
+
+  console.log("Verification email accepted by SMTP server:", {
+    messageId: deliveryInfo.messageId,
+    accepted: deliveryInfo.accepted,
+    rejected: deliveryInfo.rejected,
   });
 };

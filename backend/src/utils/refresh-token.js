@@ -32,7 +32,9 @@ export const getRefreshTokenFromRequest = (req) => {
 };
 
 export const setRefreshTokenCookie = (res, token) => {
-  const secure = process.env.COOKIE_SECURE === "true";
+  const secure =
+    process.env.COOKIE_SECURE === "true" ||
+    process.env.NODE_ENV === "production";
   const sameSite = process.env.COOKIE_SAME_SITE || (secure ? "None" : "Lax");
   const parts = [
     `${REFRESH_COOKIE_NAME}=${encodeURIComponent(token)}`,
@@ -46,7 +48,9 @@ export const setRefreshTokenCookie = (res, token) => {
 };
 
 export const clearRefreshTokenCookie = (res) => {
-  const secure = process.env.COOKIE_SECURE === "true";
+  const secure =
+    process.env.COOKIE_SECURE === "true" ||
+    process.env.NODE_ENV === "production";
   const sameSite = process.env.COOKIE_SAME_SITE || (secure ? "None" : "Lax");
   const parts = [
     `${REFRESH_COOKIE_NAME}=`,
